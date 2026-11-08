@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+    <section class="card narrow">
+        <p class="eyebrow">STUDENT PROFILE</p>
+        <h1>{{ row.name }}</h1>
+        <dl>
+            <dt>Roll</dt>
+            <dd>{{ row.roll }}</dd>
+            <dt>Address</dt>
+            <dd>{{ row.address }}</dd>
+            <dt>Mobile</dt>
+            <dd>{{ row.mobile }}</dd>
+            <dt>Parent phone</dt>
+            <dd>{{ row.parent_phone }}</dd>
+            <dt>Hall / room</dt>
+            <dd>{{ row.hall or 'Unallocated' }} / {{ row.room or '—' }}</dd>
+        </dl>
+        {% if user.role!='mess_manager' %}
+            <div class="actions">
+                <a href="{{ url_for('document',sid=row.id,kind='photo') }}">Download photo</a>
+                <a href="{{ url_for('document',sid=row.id,kind='admission_note') }}">Admission note</a>
+                {% if row.room %}
+                    <a class="button" href="{{ url_for('allotment',sid=row.id) }}">Allotment letter</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </section>
+{% endblock %}

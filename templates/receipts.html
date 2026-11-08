@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Payment receipts</h1>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Receipt</th>
+                    <th>Student</th>
+                    <th>Bill month</th>
+                    <th>Paid on (UTC)</th>
+                    <th>Amount</th>
+                    <th>Print</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in rows %}
+                    <tr>
+                        <td>R{{ '%05d'|format(r.id) }}</td>
+                        <td>{{ r.name }}</td>
+                        <td>{{ r.month }}</td>
+                        <td>{{ r.created[:10] }}</td>
+                        <td>{{ r.total|rupees }}</td>
+                        <td><a href="{{ url_for('receipt',pid=r.id) }}">Open receipt</a></td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6">No payments yet.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

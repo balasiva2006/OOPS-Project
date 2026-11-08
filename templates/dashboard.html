@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block content %}
+    <p class="eyebrow">YOUR WORKSPACE</p>
+    <h1>Welcome, {{ user.username }}</h1>
+    <p>Choose a task below. Your access is based on your role.</p>
+    <div class="grid">
+        {% if user.role=='admin' %}
+            <a class="card tile" href="{{ url_for('register_student') }}">
+                <h2>Register a student</h2>
+                <p>Create the student record and login.</p>
+            </a>
+            <a class="card tile" href="{{ url_for('allocate') }}">
+                <h2>Allocate a room</h2>
+                <p>Assign a free bed.</p>
+            </a>
+            <a class="card tile" href="{{ url_for('generate_bill') }}">
+                <h2>Generate a bill</h2>
+                <p>Create a monthly charge record.</p>
+            </a>
+        {% endif %}
+        {% if user.role=='student' %}
+            <a class="card tile" href="{{ url_for('profile',sid=user.student_id) }}">
+                <h2>My profile</h2>
+                <p>View your room and allotment letter.</p>
+            </a>
+            <a class="card tile" href="{{ url_for('new_complaint') }}">
+                <h2>Submit a complaint</h2>
+                <p>Report a repair or service issue.</p>
+            </a>
+            <a class="card tile" href="{{ url_for('bills') }}">
+                <h2>My bills</h2>
+                <p>Check charges and unpaid balances.</p>
+            </a>
+        {% endif %}
+        {% if user.role in ['warden','controlling_warden','admin'] %}
+            <a class="card tile" href="{{ url_for('occupancy') }}">
+                <h2>Room occupancy</h2>
+                <p>View occupied and available beds.</p>
+            </a>
+            <a class="card tile" href="{{ url_for('complaints') }}">
+                <h2>Complaints</h2>
+                <p>View issues and action taken reports.</p>
+            </a>
+            <a class="card tile" href="{{ url_for('accounts') }}">
+                <h2>Annual accounts</h2>
+                <p>View and print hall statements.</p>
+            </a>
+        {% endif %}
+        {% if user.role in ['admin','mess_manager'] %}
+            <a class="card tile" href="{{ url_for('mess_charges') }}">
+                <h2>Enter mess charges</h2>
+                <p>Set student charges for a month.</p>
+            </a>
+        {% endif %}
+        {% if user.role!='student' %}
+            <a class="card tile" href="{{ url_for('settlements') }}">
+                <h2>Mess settlements</h2>
+                <p>View monthly handover records.</p>
+            </a>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="heading">
+        <h1>Complaints</h1>
+        {% if user.role=='student' %}
+            <a class="button" href="{{ url_for('new_complaint') }}">Submit complaint</a>
+        {% endif %}
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Student</th>
+                    <th>Hall</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in rows %}
+                    <tr>
+                        <td>C{{ r.id }}</td>
+                        <td>{{ r.name }}</td>
+                        <td>{{ r.hall }}</td>
+                        <td>{{ r.category }}</td>
+                        <td><span class="badge">{{ r.status }}</span></td>
+                        <td><a href="{{ url_for('complaint_detail',cid=r.id) }}">View / ATR</a></td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6">No complaints.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

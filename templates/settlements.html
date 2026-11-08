@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Mess settlements</h1>
+    <p class="muted">Collection month means the month payment was received (UTC), even if the bill is for an earlier month. Record the settlement after closing that month's collections.</p>
+    {% if user.role=='admin' %}
+        <details class="card">
+            <summary>Record monthly handover</summary>
+            <form method="post" class="form-grid">
+                <input type="hidden" name="csrf" value="{{ csrf }}">
+                <label>
+                    Hall
+                    <select name="hall_id" required>
+                        {% for id,name in halls %}
+                            <option value="{{ id }}">{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>
+                    Collection month
+                    <input name="month" type="month" value="{{ current_month }}" required>
+                </label>
+                <label>
+                    Manager / payee
+                    <input name="manager" required>
+                </label>
+                <label>
+                    Cheque reference
+                    <input name="cheque" required>
+                </label>
+                <button>Record settlement</button>
+            </form>
+            <p>One settlement per hall and collection month. Amount is calculated from the mess component of payments received in that month.</p>
+        </details>
+    {% endif %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Hall</th>
+                    <th>Collection month</th>
+                    <th>Manager</th>
+                    <th>Amount</th>
+                    <th>Cheque</th>
+                    <th>Acknowledged</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in rows %}
+                    <tr>
+                        <td>{{ r.hall }}</td>
+                        <td>{{ r.month }}</td>
+                        <td>{{ r.manager }}</td>
+                        <td>{{ r.amount|rupees }}</td>
+                        <td>{{ r.cheque }}</td>
+                        <td>{{ 'Yes' if r.acknowledged else 'Pending' }}</td>
+                        <td><a href="{{ url_for('settlement_print',tid=r.id) }}">Print sheet</a>{% if user.role=='mess_manager' and not r.acknowledged %}<form method="post" action="{{ url_for('acknowledge',tid=r.id) }}"><input type="hidden" name="csrf" value="{{ csrf }}"><button>Confirm receipt</button></form>{% endif %}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="7">No settlements yet.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

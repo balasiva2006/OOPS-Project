@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{{ title or 'HMC' }} | Hall Management Centre</title>
+        <link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}">
+    </head>
+    <body>
+        <header>
+            <a class="brand" href="{{ url_for('home') }}">HMC <span>Hall Management Centre</span></a>
+            <div>
+                {% if user %}
+                    <span class="badge">{{ user.username }} · {{ user.role.replace('_',' ') }}</span>
+                    <form class="inline" method="post" action="{{ url_for('logout') }}">
+                        <input type="hidden" name="csrf" value="{{ csrf }}">
+                        <button class="secondary" type="submit">Log out</button>
+                    </form>
+                {% else %}
+                    <a class="button" href="{{ url_for('login') }}">Log in</a>
+                {% endif %}
+            </div>
+        </header>
+        {% if user %}
+            <nav>
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                {% if user.role in ['admin','warden','controlling_warden'] %}
+                    <a href="{{ url_for('halls') }}">Halls</a>
+                    <a href="{{ url_for('rooms') }}">Rooms</a>
+                    <a href="{{ url_for('students') }}">Students</a>
+                    <a href="{{ url_for('occupancy') }}">Occupancy</a>
+                    <a href="{{ url_for('accounts') }}">Accounts</a>
+                {% endif %}
+                {% if user.role != 'mess_manager' %}
+                    <a href="{{ url_for('bills') }}">Bills</a>
+                    <a href="{{ url_for('receipts') }}">Receipts</a>
+                    <a href="{{ url_for('complaints') }}">Complaints</a>
+                {% endif %}
+                {% if user.role in ['admin','mess_manager'] %}
+                    <a href="{{ url_for('mess_charges') }}">Mess charges</a>
+                {% endif %}
+                {% if user.role != 'student' %}
+                    <a href="{{ url_for('settlements') }}">Settlements</a>
+                {% endif %}
+                {% if user.role == 'admin' %}
+                    <a href="{{ url_for('staff') }}">Staff accounts</a>
+                    <a href="{{ url_for('audit_log') }}">Audit log</a>
+                {% endif %}
+                <a href="{{ url_for('change_password') }}">Password</a>
+            </nav>
+        {% endif %}
+        <main>
+            {% for category,message in get_flashed_messages(with_categories=true) %}
+                <div class="notice {{ category }}" role="status">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            {% block content %}
+            {% endblock %}
+        </main>
+        <footer>
+            HMC · OOP mini project · Local demonstration
+        </footer>
+    </body>
+</html>

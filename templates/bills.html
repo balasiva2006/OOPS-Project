@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="heading">
+        <h1>Monthly bills</h1>
+        {% if user.role=='admin' %}
+            <a class="button" href="{{ url_for('generate_bill') }}">Generate bill</a>
+        {% endif %}
+    </div>
+    <p class="muted">Outstanding balances include all payments recorded against each bill.</p>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Bill</th>
+                    <th>Student</th>
+                    <th>Month</th>
+                    <th>Rent</th>
+                    <th>Mess</th>
+                    <th>Amenities</th>
+                    <th>Total</th>
+                    <th>Paid</th>
+                    <th>Due</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in rows %}
+                    <tr>
+                        <td>B{{ '%05d'|format(r.id) }}</td>
+                        <td>{{ r.name }}<small>{{ r.roll }}</small></td>
+                        <td>{{ r.month }}</td>
+                        <td>{{ r.rent|rupees }}</td>
+                        <td>{{ r.mess|rupees }}</td>
+                        <td>{{ r.amenity|rupees }}</td>
+                        <td>{{ r.total|rupees }}</td>
+                        <td>{{ r.paid|rupees }}</td>
+                        <td>{{ (r.total-r.paid)|rupees }}</td>
+                        <td>{% if user.role=='admin' and r.total>r.paid %}<a href="{{ url_for('pay',bid=r.id) }}">Record payment</a>{% else %}—{% endif %}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="10">No bills yet.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

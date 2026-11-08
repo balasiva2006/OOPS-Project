@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+    <section class="card narrow">
+        <p class="eyebrow">REQUEST COULD NOT BE COMPLETED</p>
+        <h1>{{ code }}</h1>
+        <p>{{ message }}</p>
+        <div class="actions">
+            <button onclick="history.back()">Go back</button>
+            <a href="{{ url_for('home') }}">Home</a>
+        </div>
+    </section>
+{% endblock %}

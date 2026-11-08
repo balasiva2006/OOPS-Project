@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="heading">
+        <h1>Annual accounts — {{ year }}</h1>
+        <button class="no-print" onclick="window.print()">Print annual statement</button>
+    </div>
+    <form method="get" class="inline no-print">
+        <label>
+            Year
+            <input name="year" type="number" min="2000" max="2100" value="{{ year }}">
+        </label>
+        <button>View</button>
+    </form>
+    <h2>Billing statement</h2>
+    <p class="muted">Bills issued for {{ year }}; payments against those bills include all recorded payment dates.</p>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Hall</th>
+                    <th>Billed</th>
+                    <th>Paid against bills</th>
+                    <th>Outstanding</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in rows %}
+                    <tr>
+                        <td>{{ r.hall }}</td>
+                        <td>{{ r.billed|rupees }}</td>
+                        <td>{{ r.paid|rupees }}</td>
+                        <td>{{ r.outstanding|rupees }}</td>
+                    </tr>
+                {% endfor %}
+                <tr class="total">
+                    <td>Total</td>
+                    <td>{{ (rows|sum(attribute='billed'))|rupees }}</td>
+                    <td>{{ (rows|sum(attribute='paid'))|rupees }}</td>
+                    <td>{{ (rows|sum(attribute='outstanding'))|rupees }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <h2>Cash statement</h2>
+    <p class="muted">Payments and mess handovers recorded during {{ year }} (UTC). Net flow excludes any opening balance and other expenses.</p>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Hall</th>
+                    <th>Cash received</th>
+                    <th>Mess collected</th>
+                    <th>Mess handed over</th>
+                    <th>Net recorded cash flow</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in rows %}
+                    <tr>
+                        <td>{{ r.hall }}</td>
+                        <td>{{ r.cash|rupees }}</td>
+                        <td>{{ r.mess|rupees }}</td>
+                        <td>{{ r.settled|rupees }}</td>
+                        <td>{{ r.retained|rupees }}</td>
+                    </tr>
+                {% endfor %}
+                <tr class="total">
+                    <td>Total</td>
+                    <td>{{ (rows|sum(attribute='cash'))|rupees }}</td>
+                    <td>{{ (rows|sum(attribute='mess'))|rupees }}</td>
+                    <td>{{ (rows|sum(attribute='settled'))|rupees }}</td>
+                    <td>{{ (rows|sum(attribute='retained'))|rupees }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <p class="signature">Warden signature: ____________________ &nbsp; Date: ______________</p>
+    <p>Submitted to the Institute administration.</p>
+{% endblock %}

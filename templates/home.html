@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+    <section class="hero">
+        <p class="eyebrow">HALL MANAGEMENT CENTRE</p>
+        <h1>Hostel records,<br>in one place.</h1>
+        <p>Manage student rooms, monthly dues, complaints, and hall accounts.</p>
+        <a class="button" href="{{ url_for('dashboard') if user else url_for('login') }}">{{ 'Open dashboard' if user else 'Log in to continue' }}</a>
+    </section>
+    <div class="grid">
+        <article class="card">
+            <h2>Rooms & students</h2>
+            <p>Register students and allocate available beds.</p>
+        </article>
+        <article class="card">
+            <h2>Billing & accounts</h2>
+            <p>Record monthly charges, payments, and mess settlements.</p>
+        </article>
+        <article class="card">
+            <h2>Complaints & action</h2>
+            <p>Report issues and follow the warden’s response.</p>
+        </article>
+    </div>
+{% endblock %}

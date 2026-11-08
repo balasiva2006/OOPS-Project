@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+    <section class="card narrow">
+        <h1>Complaint C{{ row.id }}</h1>
+        <p>{{ row.name }} · {{ row.category }} · {{ row.created[:10] }}</p>
+        <p class="preserve">{{ row.description }}</p>
+        <span class="badge">{{ row.status }}</span>
+        <h2>Action Taken Report</h2>
+        <p class="preserve">{{ row.atr or 'No action report posted yet.' }}</p>
+        {% if user.role in ['admin','warden'] %}
+            <form method="post">
+                <input type="hidden" name="csrf" value="{{ csrf }}">
+                <label>
+                    Status
+                    <select name="status">
+                        {% for s in ['Open','In progress','Resolved'] %}
+                            <option {% if row.status==s %}selected{% endif %}>{{ s }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>
+                    Action taken
+                    <textarea name="atr" rows="5" required maxlength="3000">{{ row.atr }}</textarea>
+                </label>
+                <button>Save action report</button>
+            </form>
+        {% endif %}
+    </section>
+{% endblock %}

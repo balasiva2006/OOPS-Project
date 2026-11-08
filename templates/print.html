@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="actions no-print">
+        <button onclick="window.print()">Print / Save as PDF</button>
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+    </div>
+    <section class="paper">
+        <p class="eyebrow">HALL MANAGEMENT CENTRE</p>
+        <h1>{{ title }}</h1>
+        {% if kind=='allotment' %}
+            <p>Student: <strong>{{ row.name }}</strong></p>
+            <p>Roll number: {{ row.roll }}</p>
+            <p>This letter confirms the allotment of room <strong>{{ row.room }}</strong> in <strong>{{ row.hall }}</strong>.</p>
+            <p>Allotted on: {{ row.created[:10] }}</p>
+            <p class="signature">Authorised signature: ____________________</p>
+        {% elif kind=='receipt' %}
+            <p>Receipt: R{{ '%05d'|format(row.id) }} · Date: {{ row.created[:10] }}</p>
+            <p>Received from: <strong>{{ row.name }}</strong> ({{ row.roll }})</p>
+            <p>Against bill B{{ '%05d'|format(row.bill_id) }} for {{ row.month }}</p>
+            <table>
+                <tr>
+                    <th>Component</th>
+                    <th>Paid</th>
+                </tr>
+                <tr>
+                    <td>Mess</td>
+                    <td>{{ row.mess|rupees }}</td>
+                </tr>
+                <tr>
+                    <td>Room rent</td>
+                    <td>{{ row.rent|rupees }}</td>
+                </tr>
+                <tr>
+                    <td>Amenities</td>
+                    <td>{{ row.amenity|rupees }}</td>
+                </tr>
+                <tr class="total">
+                    <td>Total received</td>
+                    <td>{{ (row.rent+row.mess+row.amenity)|rupees }}</td>
+                </tr>
+            </table>
+            <p class="signature">Cashier signature: ____________________</p>
+        {% else %}
+            <p>Hall: <strong>{{ row.hall }}</strong></p>
+            <p>Collection month: {{ row.month }}</p>
+            <p>Mess manager / payee: {{ row.manager }}</p>
+            <p>Total mess amount handed over: <strong>{{ row.amount|rupees }}</strong></p>
+            <p>Cheque reference: {{ row.cheque }} · Recorded: {{ row.created[:10] }}</p>
+            <p>Acknowledgement: {{ 'Confirmed online on '+row.acknowledged_at[:10] if row.acknowledged else 'Pending' }}</p>
+            <p class="signature">Manager signature: ____________________ Date: ____________</p>
+            <hr>
+            <h2>Cheque preparation details</h2>
+            <p>Pay: {{ row.manager }}</p>
+            <p>Amount: {{ row.amount|rupees }}</p>
+            <p>Cheque reference: {{ row.cheque }}</p>
+            <p class="muted">Demonstration printout. This is not a bank-valid cheque; use bank-issued stationery for an actual payment.</p>
+            <p class="signature">Authorised signature: ____________________</p>
+        {% endif %}
+    </section>
+{% endblock %}

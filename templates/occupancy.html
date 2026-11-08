@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="heading">
+        <h1>Room occupancy</h1>
+        <button class="no-print" onclick="window.print()">Print report</button>
+    </div>
+    <div class="grid">
+        <div class="card">
+            <h2>{{ rows|sum(attribute='capacity') }}</h2>
+            <p>Total beds</p>
+        </div>
+        <div class="card">
+            <h2>{{ rows|sum(attribute='occupied') }}</h2>
+            <p>Occupied beds</p>
+        </div>
+        <div class="card">
+            <h2>{{ (rows|sum(attribute='capacity'))-(rows|sum(attribute='occupied')) }}</h2>
+            <p>Available beds</p>
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Hall</th>
+                    <th>Room</th>
+                    <th>Capacity</th>
+                    <th>Occupied</th>
+                    <th>Available</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in rows %}
+                    <tr>
+                        <td>{{ r.hall }}</td>
+                        <td>{{ r.number }}</td>
+                        <td>{{ r.capacity }}</td>
+                        <td>{{ r.occupied }}</td>
+                        <td>{{ r.capacity-r.occupied }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5">No rooms.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

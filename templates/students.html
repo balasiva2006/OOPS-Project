@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="heading">
+        <h1>Students</h1>
+        {% if user.role=='admin' %}
+            <div class="actions">
+                <a class="button" href="{{ url_for('register_student') }}">Register student</a>
+                <a class="button secondary" href="{{ url_for('allocate') }}">Allocate room</a>
+            </div>
+        {% endif %}
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Roll</th>
+                    <th>Name</th>
+                    <th>Hall</th>
+                    <th>Room</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in rows %}
+                    <tr>
+                        <td>{{ r.roll }}</td>
+                        <td>{{ r.name }}</td>
+                        <td>{{ r.hall or 'Unallocated' }}</td>
+                        <td>{{ r.room or '—' }}</td>
+                        <td><a href="{{ url_for('profile',sid=r.id) }}">Open profile</a></td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5">No students to display.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
