@@ -44,13 +44,7 @@ These fictitious demo accounts are created only when you run seed.py:
 
 | Role | Username | Password |
 |---|---|---|
-| Administrator | admin | Admin@123 |
-| Student | student1 | Student@123 |
-| Old Hall warden | warden1 | Warden@123 |
-| New Hall warden | warden2 | Warden@123 |
-| Old Hall mess manager | mess1 | Mess@123 |
-| New Hall mess manager | mess2 | Mess@123 |
-| Controlling warden | chief | Chief@123 |
+| Administrator | OOPS | OOPS@123 |
 
 Seeding again preserves existing records and passwords. Change every demo password before exposing demo accounts publicly.
 
