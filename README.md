@@ -1,171 +1,132 @@
-# HMC — Hall Management Centre
+# HMC - Hall Management Centre
 
-A runnable Python OOP package named `hmc_system`, organised into subpackages and modules following the package example in the assignment. This implements the HMC problem in Python.
+A Python OOP assignment using Flask, PostgreSQL, HTML and CSS. The main package is `hmc_system`. PostgreSQL stores accounts, room records, bills, payments, complaints, and uploaded documents.
 
-A Python mini project with Flask, SQLite, HTML, and CSS. It includes the application code, 19 HTML templates, a shared stylesheet, sample data setup, and automated workflow checks.
+## Run on Windows
 
-## Start here — Windows / VS Code
-
-Requires Python 3.10 or newer. An internet connection is needed for the first package installation.
-
-1. Open **this directory** in VS Code (the folder containing app.py and hmc_system/).
-2. Open Terminal → New Terminal.
-3. Run these commands one by one:
+Open this directory in VS Code and use its PowerShell terminal.
 
 ```powershell
 py -3 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+Copy-Item .env.example .env
+```
+
+Skip the copy command if `.env` already exists. Open `.env` and fill in:
+
+```dotenv
+DATABASE_URL=your_postgresql_connection_string
+HMC_SECRET_KEY=your_private_random_key
+```
+
+Get the PostgreSQL connection string from your Neon project's Connect panel. Use its pooled connection string with SSL enabled. Generate a session key with:
+
+```powershell
+.\.venv\Scripts\python.exe -c "import secrets; print(secrets.token_hex(32))"
+```
+
+Keep `.env` private. It is excluded from Git and Vercel uploads. Never put credentials in Python source or README.md.
+
+For an assignment demonstration, create tables and sample accounts:
+
+```powershell
 .\.venv\Scripts\python.exe seed.py
 .\.venv\Scripts\python.exe app.py
 ```
 
-4. Open http://127.0.0.1:5000 in your browser.
-5. Leave the terminal running. Press Ctrl+C to stop the server.
+Open http://127.0.0.1:5000. Stop with Ctrl+C. After setup you can also use START_WINDOWS.bat to start the app.
 
-Alternatively, double-click START_WINDOWS.bat. It creates the environment, installs Flask, adds sample data, and starts the app. If Windows uses `python` instead of `py`, use `python -m venv .venv` for the first command.
+For Linux/macOS, use `python3 -m venv .venv` and `.venv/bin/python` instead of the Windows Python path.
 
-The environment does not need to be activated. Calling its Python executable directly avoids PowerShell execution-policy issues.
+## Accounts
 
-## Linux / macOS
+These fictitious demo accounts are created only when you run seed.py:
 
-```bash
-python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
-.venv/bin/python seed.py
-.venv/bin/python app.py
-```
+| Role | Username | Password |
+|---|---|---|
+| Administrator | admin | Admin@123 |
+| Student | student1 | Student@123 |
+| Old Hall warden | warden1 | Warden@123 |
+| New Hall warden | warden2 | Warden@123 |
+| Old Hall mess manager | mess1 | Mess@123 |
+| New Hall mess manager | mess2 | Mess@123 |
+| Controlling warden | chief | Chief@123 |
 
-## Demonstration accounts
+Seeding again preserves existing records and passwords. Change every demo password before exposing demo accounts publicly.
 
-These accounts are created by seed.py. They are fictitious local-demo accounts, not real users.
-
-| Role | Username | Password | Scope |
-|---|---|---|---|
-| Administrator | admin | Admin@123 | All halls and financial entry |
-| Student | student1 | Student@123 | Own records; Old Hall room 101 |
-| Hall warden | warden1 | Warden@123 | Old Hall |
-| Hall warden | warden2 | Warden@123 | New Hall |
-| Mess manager | mess1 | Mess@123 | Old Hall |
-| Mess manager | mess2 | Mess@123 | New Hall |
-| Controlling warden | chief | Chief@123 | Read reports across halls |
-
-Use Password in the navigation bar to change a password. Student accounts are created during registration. The administrator can create additional staff accounts from Staff accounts. Running seed.py again keeps existing records and passwords.
-
-## Features
-
-- Register a student with permanent address, contact numbers, photograph, and admission note; create the student's account.
-- Add halls with amenities and fixed amenity charges.
-- Add single or sharing rooms with capacity and monthly rent per student. Sample new-hall rent is higher and sharing-room rent is lower.
-- Allocate an available bed; reject overbooking and duplicate student allocations.
-- Print an allotment letter from the student profile.
-- Enter monthly mess charges, including an explicit zero.
-- Generate one bill per student and billing month. Bill snapshots preserve the original charges.
-- Record full or partial payments, reject overpayment, and print numbered receipts.
-- Students submit repair or staff complaints; hall wardens add Action Taken Reports and statuses.
-- Hall wardens see only their hall. The controlling warden sees occupancy and reports across halls.
-- Record mess handovers based on mess cash collected; print the settlement/signature sheet and cheque preparation details. Mess managers can acknowledge receipt.
-- View/print annual consolidated billing and cash statements with a warden signature line.
-- Hashed passwords, session login, server-side role checks, CSRF form tokens, escaped template text, parameterized SQL, protected document downloads, and application audit events.
-
-## Important project assumptions
-
-1. Rent and amenity fees are **monthly amounts per student**. Sharing rent is entered per person, not divided again by capacity.
-2. Mess charges are entered before generating the bill. They can be revised until a bill is posted. Posted bill/payment records have no editing or deletion interface.
-3. Payment allocation order is **mess → room rent → amenities**. A partial payment therefore has an explicit mess component for settlement purposes.
-4. Mess settlement uses the **collection month**, determined by payment timestamp, rather than the bill month. Timestamps and reporting boundaries use UTC consistently.
-5. One settlement closes a hall's mess collections for that month. Enter all payments before closing. Any later payment that would allocate more mess to that closed month is rejected. Rent-only/amenity-only payments remain possible.
-6. Settlement records represent a manually recorded cheque handover. Printing does not send money. The cheque section is a demonstration layout; actual bank cheques require bank-issued stationery. Online acknowledgement supplements the signature line on the printed sheet.
-7. Billing-year totals use bill months; paid-against-bill totals include all payment dates. Cash-year totals use receipt/handover dates. Net recorded cash flow is not a complete bank balance: no opening balance or other expense ledger is included.
-8. This version has no room transfers, checkout, proration, refunds, financial reversal workflow, online payment gateway, or email/SMS service. These are possible extensions.
-
-## Suggested demonstration (15–20 minutes)
-
-1. Run seed.py and start the app.
-2. Log in as admin. Open Halls and Rooms to inspect the sample inventory.
-3. Register a new student with a real PNG/JPEG photo and a PDF/PNG/JPEG admission note. Use fictitious contact details for demonstrations.
-4. Allocate an available room, open the profile, and print the allotment letter.
-5. Open Mess charges. For the sample student, enter Rs. 2,500 for the current month.
-6. Generate the sample student's bill. Old Hall room 101 gives rent Rs. 1,500 + mess Rs. 2,500 + amenities Rs. 300 = Rs. 4,300.
-7. Record a payment of Rs. 3,000. It allocates Rs. 2,500 to mess and Rs. 500 to rent. Outstanding becomes Rs. 1,300. Print the receipt.
-8. Pay the remaining Rs. 1,300 and open Receipts.
-9. Log out. Log in as student1 and submit an Electrical complaint.
-10. Log in as warden1. Open that complaint, record an ATR, and set it to Resolved.
-11. Log in as student1 and verify the response.
-12. Log in as admin. After completing all mess payments, record the Old Hall settlement for the current collection month with manager name and a unique fictitious cheque reference.
-13. Print the settlement sheet. Log in as mess1 and confirm receipt.
-14. Log in as chief to view overall occupancy and accounts. Print the annual statement.
-15. Log in as warden2 and verify that Old Hall records are not visible.
-
-## Code structure
-
-```text
-assignment - 3/
-|-- hmc_system/                  Main Python package
-|   |-- __init__.py              Public create_app() factory
-|   |-- __main__.py              python -m hmc_system launcher
-|   |-- seed.py                  Sample-data setup function
-|   |-- accounts/
-|   |   |-- __init__.py
-|   |   `-- user.py              User class and password verification
-|   |-- accommodation/
-|   |   |-- __init__.py
-|   |   |-- room.py              Room class and capacity check
-|   |   `-- allocation.py        AllocationService class
-|   |-- transactions/
-|   |   |-- __init__.py
-|   |   |-- bill.py              Bill class, total and balance
-|   |   |-- billing.py           BillingService: generate and pay
-|   |   `-- settlement.py        SettlementService: mess handover
-|   |-- utilities/
-|   |   |-- __init__.py
-|   |   |-- database.py          SQLite schema and connection helpers
-|   |   |-- validation.py        Money, month and timestamp functions
-|   |   `-- audit.py             Audit recording function
-|   `-- web/
-|       |-- __init__.py
-|       `-- application.py       Flask routes, forms and role checks
-|-- app.py                       Existing application launcher
-|-- seed.py                      Existing sample-data launcher
-|-- templates/                   HTML pages and print layouts
-|-- static/css/style.css         Shared screen and print styles
-|-- tests/test_workflows.py      Workflow checks using package imports
-|-- README.md                    Setup and demonstration
-|-- requirements.txt            Flask dependency
-`-- START_WINDOWS.bat           Windows launcher
-```
-
-Each subpackage contains an `__init__.py` file. The classes and functions live in the modules above. Import them directly from their hmc_system subpackages. Flask and SQLite are used directly.
-
-You can also seed and run the package directly:
+For a fresh public deployment, create your own administrator instead of seeding demo accounts:
 
 ```powershell
-.\.venv\Scripts\python.exe -m hmc_system.seed
-.\.venv\Scripts\python.exe -m hmc_system
+.\.venv\Scripts\python.exe -m flask --app app create-admin
 ```
 
-`instance/`, the database, uploaded documents, and the session secret are created automatically. The ZIP intentionally contains no database, private uploads, secret key, or virtual environment.
+This command creates missing tables and prompts for your username and password. Staff accounts and student accounts can then be created through the admin interface. To create tables only:
 
-## Checking the project
+```powershell
+.\.venv\Scripts\python.exe -m flask --app app init-db
+```
+
+## Deploy on Vercel
+
+1. Set up a Neon PostgreSQL database. Reset any database password previously shared publicly.
+2. Set `DATABASE_URL` and `HMC_SECRET_KEY` in your local `.env`, then run `create-admin` above against the database you intend to deploy. The same database is used from local Python and Vercel.
+3. Push the project to your Git repository, then import it in Vercel. Select Flask if asked for a framework. The root `app.py` exports the Flask application.
+4. Add `DATABASE_URL` and `HMC_SECRET_KEY` in Vercel's project environment variables. Keep the session key stable across deployments. Use a separate database or Neon branch for preview deployments if previews should not modify production records.
+5. Deploy, then test login, registration, document downloads, bills and complaints.
+
+Dependencies come from requirements.txt. vercel.json sets the function timeout. CSS is served from `public/static/css/style.css`. Database setup is an explicit command; application imports and builds do not create tables or demo users.
+
+The app needs no writable server filesystem. Uploaded PNG/JPEG photos and PDF/PNG/JPEG admission notes are kept in PostgreSQL and served only after role/student/hall permission checks. The complete registration request is limited to 4 MB, including both files and form fields. This simple storage approach suits a small assignment; large document collections should move to private object storage.
+
+## Package structure
+
+```text
+hmc_system/
+    __init__.py                 Application factory
+    __main__.py                 Package launcher
+    seed.py                     Optional sample data
+    accounts/user.py            User model and password checks
+    accommodation/room.py       Room model
+    accommodation/allocation.py Room capacity and allocation rules
+    transactions/bill.py        Bill totals and balance
+    transactions/billing.py     Bills and payments
+    transactions/settlement.py  Monthly mess handovers
+    utilities/database.py       PostgreSQL schema, connections and transactions
+    utilities/documents.py      Private document storage
+    utilities/validation.py     Money, month and timestamp validation
+    utilities/audit.py          Audit events
+    web/application.py          Routes, forms and permission checks
+templates/                      Formatted HTML/Jinja pages
+public/static/css/style.css     Formatted stylesheet
+tests/                          Configuration and PostgreSQL workflow tests
+```
+
+Each package/subpackage includes `__init__.py`. All application code is Python, following the requested language despite Java appearing in the original question.
+
+## Implemented workflows
+
+- Student registration with contact details, photo, admission note and login.
+- Hall/room inventory, room allocation with capacity checks, printable allotment letters.
+- Monthly mess charges, rent and amenities; bills and partial/full payments; printed receipts.
+- Repair/staff complaints and warden Action Taken Reports.
+- Hall-specific and overall occupancy; annual consolidated accounts with signature lines.
+- Mess settlement sheets, cheque preparation details and manager acknowledgement.
+- Password hashing, CSRF tokens, parameterised SQL, role/hall checks and audit records.
+
+Rent and amenity fees are monthly per student. Mess charges must be entered before billing, including an explicit zero if applicable. Posted bills preserve their amounts. Payments allocate to mess, then rent, then amenities. Settlements close a hall's collection month, using UTC payment dates; later mess collections for that closed month are rejected. A database transaction and advisory lock serialise application writes across server instances.
+
+Cheques are recorded and printed for demonstration; the app does not move money. Annual billing totals use bill months, while cash totals use receipt/handover dates. Net cash flow excludes opening balances and other expenses. Room transfers, refunds, corrections/reversals, online payments and account recovery are outside this assignment's scope.
+
+## Tests
 
 ```powershell
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 ```
 
-Ten automated tests cover money validation, room capacity and duplicate allocation, missing/duplicate bills, partial payments and overpayments, document/record permissions, complaint ATR permissions, settlement totals and closed collections, login/CSRF, registration/uploads/HTML escaping, and role-specific pages/print reports. Tests use temporary databases and do not change your project records.
+Set `TEST_DATABASE_URL` in your terminal to run database workflow tests against a dedicated PostgreSQL test database. Each test creates and removes its own uniquely named schema; the test user needs permission to create schemas. Tests do not use `DATABASE_URL` as a fallback. Without a test connection, database tests are reported as skipped and configuration checks still run.
 
-## Troubleshooting
+## Existing local data
 
-- **No module named flask:** Install requirements with the same .venv Python used to start app.py.
-- **TemplateNotFound:** Keep templates/ and static/ in the project directory beside hmc_system/ and app.py.
-- **No sample accounts:** Run seed.py before logging in.
-- **Port 5000 already in use:** Stop the previous Flask terminal with Ctrl+C, or temporarily use `run(port=5001, debug=True)` in app.py.
-- **409 duplicate record:** Check the roll number, login name, hall/room number, bill month, or settlement month.
-- **400 CSRF token:** Refresh the page and submit again. A login/logout in another tab may invalidate an old form.
-- **413 upload error:** The complete request may not exceed 6 MB. Use smaller files.
-- **Print layout:** Choose Print / Save as PDF and disable browser headers/footers if desired.
+The old `instance/` folder is no longer used. It has been preserved because it may contain your previous records and documents. They are not automatically copied into PostgreSQL. The app has no local database fallback. Keep the folder privately if you need those records later; it is excluded from deployment.
 
-## Scope
-
-This is an educational local mini project, not a production financial system. It has no payment gateway, bank integration, tamper-proof external audit storage, account recovery, login rate limiting, or production hosting configuration. File checks validate signatures, not full malware scanning. Debug mode is for local development. Before using real personal or financial data, extend and review the implementation appropriately.
-
-The original image names Java. This submission implements the HMC requirements in Python, as requested. The banking example supplies the package organisation pattern; the application domain remains HMC.
+This is an educational project. Before storing real student/financial data, review access controls, backups, logging, login rate limiting and operational security. Local debug mode is only used by the direct development launch command.

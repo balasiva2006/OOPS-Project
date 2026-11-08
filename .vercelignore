@@ -1,0 +1,8 @@
+.venv/
+.git/
+instance/
+.env
+.env.*
+__pycache__/
+tests/
+.pg-test/
